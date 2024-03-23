@@ -265,7 +265,7 @@ async function main(){
 		var decryptedMessage = decryptText(message, ids.key, ids.iv)
 
 		// On envoie le message à la fenêtre
-		window.webContents.send("message", { message: decryptedMessage || "Impossible de déchiffrer le message, cela vient sûrement de la personne ayant envoyé ce message.", username, effect, ipAddr })
+		window.webContents.send("message", { message: decryptedMessage || "Impossible de déchiffrer le message, cela vient sûrement de la personne ayant envoyé ce message.", username, effect })
 		res.status(200).send("OK")
 
 		if(!isShowed){
