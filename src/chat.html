@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Propriétés -->
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Script, CSS -->
+	<script src="js/confetti.js" defer></script>
+	<script src="js/main.js" async></script>
+	<link href="style.css" rel="stylesheet">
+</head>
+<body class="absolute inset-0 px-5 py-4">
+	<!-- Demander un nom d'utilisateur -->
+	<div id="askusername-modal" tabindex="-1" class="overflow-y-auto overflow-x-hidden fixed top-1/2 left-1/2 z-50 justify-center items-center w-full inset-0" style="transform: translate(-50%, -50%);">
+		<div class="relative p-4 w-full">
+			<div class="relative rounded-lg boxshadow bg-[#fcfcfc] dark:bg-[#363636]">
+				<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+					<h3 class="text-xl font-bold textColor">
+						Choisir un nom d'utilisateur
+					</h3>
+				</div>
+
+				<div class="p-4">
+					<div class="space-y-4">
+						<input autofocus type="text" id="askusername" class="outline-none bg-fcfcfc dark-bg-363636 border-[#e8e8e8] dark:border-[#464646] border-[0.5px] dark:text-[#EFEFEF] text-sm rounded-lg block w-full p-2.5" placeholder="Laisser vide pour un nom aléatoire"/>
+						<button onclick="joinChat()" class="outline-none w-full text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">Continuer</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> 
+
+	<!-- Conteneur principal -->
+	<div id="mainContainer" class="duration-200 w-full h-full grid grid-rows-[1fr,0.2fr] gap-2 opacity-30 pointer-events-none">
+		<!-- Liste des messages -->
+		<div id="messages" class="space-y-2 overflow-y-auto" style="grid-area: 1 / 1 / 2 / 2;"></div>
+
+		<!-- Zone de texte -->
+		<div style="grid-area: 2 / 1 / 3 / 2;">
+			<div class="flex items-center gap-2 h-full">
+				<!-- Message -->
+				<textarea id="message" rows="4" spellcheck="true" class="resize-none outline-none mt-2 p-2 rounded-md boxshadow w-full bg-fcfcfc dark-bg-363636 border-[#e8e8e8] dark:border-[#464646] border-[0.5px] dark:text-[#EFEFEF]" placeholder="Commencez à écrire un message ici. Utiliser Ctrl+R pour forcer l'actualisation ou pour changer de nom d'utilisateur."></textarea>
+
+				<!-- Boutons supplémentaires -->
+				<div class="flex place-items-end h-full">
+					<button onclick="sendMessage()" id="sendButton" class="bg-fcfcfc dark-bg-363636 border-[#e8e8e8] dark:border-[#464646] border-[0.5px] hover:bg-[#e8e8e8] hover:dark:bg-[#393939] p-1 rounded-md">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="fill-current dark:text-[#F5F5F5]">
+							<path fill="currentColor" d="M12.483 11.931 5.724 13.06a.449.449 0 0 0-.346.286l-2.33 6.245a.673.673 0 0 0 .928.846l16.152-8.079a.674.674 0 0 0 0-1.205L3.976 3.073a.674.674 0 0 0-.928.847l2.33 6.245a.449.449 0 0 0 .347.286l6.759 1.127a.179.179 0 0 1 .106.292.182.182 0 0 1-.107.062Z"/>
+						</svg>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

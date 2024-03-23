@@ -1,0 +1,34 @@
+{
+	"private": true,
+	"name": "localchat",
+	"productName": "LocalChat",
+	"description": "Un chat par réseau, décentralisé, qui n'utilise pas Internet",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"start": "electron .",
+		"build_tailwindcss": "npx tailwindcss -i ./src/preTailwind.css -o ./src/style.css",
+		"watch_tailwindcss": "npx tailwindcss -i ./src/preTailwind.css -o ./src/style.css --watch",
+		"build-exe-x64": "electron-packager . --platform=win32 --arch=x64 --icon=src/icons/icon.ico --out=release-builds --overwrite",
+		"build-app-x64": "electron-packager . --platform=darwin --arch=x64 --icon=src/icons/icon.icns --out=release-builds --overwrite",
+		"build-app-arm64": "electron-packager . --platform=darwin --arch=arm64 --icon=src/icons/icon.icns --out=release-builds --overwrite",
+		"build": "node build.js"
+	},
+	"author": "Johan Stickman",
+	"license": "MIT",
+	"devDependencies": {
+		"archiver": "^6.0.1",
+		"electron": "^20.0.0",
+		"electron-packager": "^17.1.2",
+		"eslint": "^8.48.0",
+		"tailwindcss": "^3.3.1"
+	},
+	"dependencies": {
+		"body-parser": "^1.20.2",
+		"electron-context-menu": "^3.6.1",
+		"electron-traywindow-positioner": "^1.2.0",
+		"express": "^4.19.1",
+		"mica-electron": "^1.5.3",
+		"node-fetch": "2.6.9"
+	}
+}

@@ -1,0 +1,231 @@
+/* Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ombre */
+.boxshadow {
+	box-shadow: 1px 1px 5px 0px var(--boxShadowColor);
+}
+
+/* Rendre un message bien cheum */
+.uglify {
+	font-family: 'Comic Sans MS', 'Chalkboard SE', 'Times New Roman', cursive;
+	font-stretch: ultra-expanded;
+	line-height: 1rem;
+	letter-spacing: 0.4rem;
+	background-color: yellow;
+	color: yellowgreen;
+	border-radius: 4px;
+	padding: 4px;
+}
+
+/* Animation d'arrière plan multicolorée */
+.rainbowBg {
+	background: linear-gradient(238deg, #fd8800, #9700fd, #003dfd, #05c7e6, #4bd58d);
+	background-size: 1200% 1200%;
+	animation: rainbow 10s ease infinite;
+}
+@keyframes rainbow {
+	0% { background-position: 0% 50% }
+	50% { background-position: 100% 50% }
+	100% { background-position: 0% 50% }
+}
+
+/* Changer le curseur */
+button, a {
+	cursor: default !important;
+}
+
+/* Faire tourner un élément à 360° en boucle */
+@keyframes loading {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+.rotate {
+	animation: loading 2s linear infinite;
+}
+
+/* Changer le line height des placeholder */
+::-webkit-input-placeholder { line-height: 1.35rem }
+
+/* Couleurs en fonction du thème */
+/* Thème claire */
+:root {
+	--textColor: #393939;
+	--scrollBar-color: #A0A0A0;
+	--scrollBar-color-hover: #C0C0C0;
+	--scrollBar-track-color: #D0D0D0;
+	--scrollBar-thumb-hover: #777777; /* (j'ai fait 0 efforts sur les couleurs de la scrollbar HAHAHA j'ai utilisé Copilot ça passe mm si ça rend pas trop bien) */
+	--boxShadowColor: rgba(255, 255, 255, 0.20);
+	--background: rgb(246, 246, 246, 0.835);
+}
+/* Thème sombre */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--textColor: #F5F5F5;
+		--scrollBar-color: #464646;
+		--scrollBar-color-hover: #202020;
+		--scrollBar-track-color: #282828;
+		--scrollBar-thumb-hover: #5e5e5e;
+		--boxShadowColor: rgba(0, 0, 0, 0.20);
+		--background: rgb(41, 41, 41, 0.885);
+	}
+}
+
+/* Font smoothing, et ombre */
+p, button, h1, h2, h3, a, option, input, textarea {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-shadow: 1px 1px 1px var(--boxShadowColor);
+}
+
+/* Couleurs avec transparence */
+.bg-fcfcfc {
+	background: rgb(252, 252, 252, 0.7);
+}
+@media (prefers-color-scheme: dark) {
+	.dark-bg-343434 {
+		background: rgb(52, 52, 52, 0.7);
+	}
+	.dark-bg-363636 {
+		background: rgb(54, 54, 54, 0.7);
+	}
+}
+
+/* Couleur d'arrière plan */
+html {
+	background-color: var(--background);
+}
+
+/* Modifications de base sur toute la page */
+body {
+	/* Empêcher de sélectionner du texte */
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+	/* Masquer la scrollbar X */
+	overflow-x: hidden;
+
+	/* Textes */
+	color: var(--textColor);
+	font-family: Segoe UI;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: normal;
+}
+
+/* Scrollbar */
+/* textarea: */
+textarea::-webkit-scrollbar {
+	background-color: var(--scrollBar-color);
+	width: 6px;
+	height: 6px;
+}
+textarea::-webkit-scrollbar-track {
+	background-color: var(--scrollBar-color);
+	box-shadow: 0 0 3px var(--scrollBar-track-color);
+	border-radius: 10px;
+}
+textarea::-webkit-scrollbar-thumb {
+	background-color: var(--scrollBar-track-color);
+	border-radius: 10px;
+}
+textarea::-webkit-scrollbar-thumb:hover {
+	background: var(--scrollBar-color-hover);
+}
+/* normal: */
+::-webkit-scrollbar {
+	background-color: var(--scrollBar-track-color);
+	width: 6px;
+	height: 6px;
+}
+::-webkit-scrollbar-track {
+	background-color: var(--scrollBar-track-color);
+	box-shadow: 0 0 3px var(--scrollBar-color);
+	border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+	background-color: var(--scrollBar-color);
+	border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: var(--scrollBar-thumb-hover);
+}
+
+/* segoe-ui-300 - latin */
+@font-face {
+	font-display: swap;
+	font-family: 'Segoe UI';
+	font-style: normal;
+	font-weight: 300;
+	src: url('fonts/segoe-ui-light.ttf') format('truetype');
+}
+/* segoe-ui-regular - latin */
+@font-face {
+	font-display: swap;
+	font-family: 'Segoe UI';
+	font-style: normal;
+	font-weight: 400;
+	src: url('fonts/segoe-ui.ttf') format('truetype');
+}
+/* segoe-ui-500 - latin */
+@font-face {
+	font-display: swap;
+	font-family: 'Segoe UI';
+	font-style: normal;
+	font-weight: 500;
+	src: url('fonts/segoe-ui-semibold.ttf') format('truetype');
+}
+/* segoe-ui-600 - latin */
+@font-face {
+	font-display: swap;
+	font-family: 'Segoe UI';
+	font-style: normal;
+	font-weight: 600;
+	src: url('fonts/segoe-ui-bold.ttf') format('truetype');
+}
+
+/* poppins-regular - latin */
+@font-face {
+	font-display: swap;
+	font-family: 'Poppins';
+	font-style: normal;
+	font-weight: 400;
+	src: url('fonts/poppins-v20-latin-regular.woff2') format('woff2'),
+		url('fonts/poppins-v20-latin-regular.ttf') format('truetype');
+}
+/* poppins-500 - latin */
+@font-face {
+	font-display: swap;
+	font-family: 'Poppins';
+	font-style: normal;
+	font-weight: 500;
+	src: url('fonts/poppins-v20-latin-500.woff2') format('woff2'),
+		url('fonts/poppins-v20-latin-500.ttf') format('truetype');
+}
+/* poppins-600 - latin */
+@font-face {
+	font-display: swap;
+	font-family: 'Poppins';
+	font-style: normal;
+	font-weight: 600;
+	src: url('fonts/poppins-v20-latin-600.woff2') format('woff2'),
+		url('fonts/poppins-v20-latin-600.ttf') format('truetype');
+}
+/* poppins-700 - latin */
+@font-face {
+	font-display: swap;
+	font-family: 'Poppins';
+	font-style: normal;
+	font-weight: 700;
+	src: url('fonts/poppins-v20-latin-700.woff2') format('woff2'),
+		url('fonts/poppins-v20-latin-700.ttf') format('truetype');
+}
