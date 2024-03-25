@@ -24,6 +24,8 @@ contextMenu({
 	showLookUpSelection: false,
 	showSelectAll: false,
 
+	shouldShowMenu: (event, parameters) => parameters.isEditable,
+
 	append: () => [
 		{
 			label: "Envoyer avec effet",
@@ -37,17 +39,29 @@ contextMenu({
 					click: () => window.webContents.send("effect", "rotate")
 				},
 				{
-					label: "Confettis",
-					click: () => window.webContents.send("effect", "tada")
+					label: "Battements",
+					click: () => window.webContents.send("effect", "pulse")
+				},
+				{
+					label: "Vibrations",
+					click: () => window.webContents.send("effect", "vibrate")
 				},
 				{ type: "separator" },
 				{
-					label: "Énorme",
-					click: () => window.webContents.send("effect", "big")
+					label: "Chute",
+					click: () => window.webContents.send("effect", "rotate-down")
 				},
 				{
-					label: "Discret",
-					click: () => window.webContents.send("effect", "discret")
+					label: "Secousse",
+					click: () => window.webContents.send("effect", "wobble")
+				},
+				{
+					label: "Confettis",
+					click: () => window.webContents.send("effect", "tada")
+				},
+				{
+					label: "Rebondissant",
+					click: () => window.webContents.send("effect", "bounce")
 				},
 				{ type: "separator" },
 				{
@@ -61,7 +75,20 @@ contextMenu({
 				{
 					label: "Multicolore",
 					click: () => window.webContents.send("effect", "rainbow")
-				}
+				},
+				{
+					label: "Couleurs inversées",
+					click: () => window.webContents.send("effect", "invert")
+				},
+				{ type: "separator" },
+				{
+					label: "Énorme",
+					click: () => window.webContents.send("effect", "big")
+				},
+				{
+					label: "Discret",
+					click: () => window.webContents.send("effect", "discret")
+				},
 			]
 		}
 	]

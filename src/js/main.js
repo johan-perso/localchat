@@ -74,7 +74,7 @@ window.onload = async function () {
 // Fonction pour rejoindre le chat
 async function joinChat(){
 	// Liste de noms d'utilisateurs aléatoires
-	var randomUsernames = ["ShiftedRy", "Kittenboy", "TruLuv89", "FlavaLamp", "Powerbutton", "Helix28", "TheAccountant", "heavenshawk", "RazerBlayd", "Sincity45", "Lostblood", "Fishguises", "GreenWoods", "Effervescent", "ActiveMitzi", "Born2Tuch", "DollZest", "GoodTeenz", "LedgerCotton", "Dstonk", "StyleBoz", "AssassinRage", "PeppyDose", "ShadowArtisan", "Autistic", "FluffyPhantom", "DigitalSentinel", "InfamousCoin", "Player", "QuietInstigator", "RebelHorn", "FiendishSpeedster", "MustachedMarksman", "XxSpeedrunner", "MischievousCrash", "MintySweet", "EnchantedIron", "JaggedProwess", "IntimidateHare", "RamboGirl", "ImpulseUnicorn", "MajesticKiller", "JuicyTracker", "AnimeGirl", "AngrySlayer", "EpicVisage", "GhostCharm", "TerraRider", "NimbleBat", "StrangeKitten", "FuriousBlast", "RoughWarrior", "InsaneNight", "SourThuliumSpeed", "ErbiumRecluse420", "69ToadIodine", "AutisticSnazzyFlower", "JuneAutistic", "Altf4"]
+	var randomUsernames = ["ShiftedRy", "Kittenboy", "TruLuv89", "FlavaLamp", "Powerbutton", "Helix28", "TheAccountant", "heavenshawk", "RazerBlayd", "Sincity45", "Lostblood", "Fishguises", "GreenWoods", "Effervescent", "ActiveMitzi", "GoodTeenz", "LedgerCotton", "Dstonk", "StyleBoz", "AssassinRage", "PeppyDose", "ShadowArtisan", "Autistic", "FluffyPhantom", "DigitalSentinel", "InfamousCoin", "Player", "QuietInstigator", "RebelHorn", "FiendishSpeedster", "MustachedMarksman", "XxSpeedrunner", "MischievousCrash", "MintySweet", "EnchantedIron", "JaggedProwess", "IntimidateHare", "RamboGirl", "ImpulseUnicorn", "MajesticKiller", "JuicyTracker", "AnimeGirl", "AngrySlayer", "EpicVisage", "GhostCharm", "TerraRider", "NimbleBat", "StrangeKitten", "FuriousBlast", "RoughWarrior", "InsaneNight", "SourThuliumSpeed", "ErbiumRecluse420", "69ToadIodine", "AutisticSnazzyFlower", "JuneAutistic", "Altf4"]
 
 	// Récupérer le nom d'utilisateur
 	username = document.getElementById("askusername")?.value
@@ -173,12 +173,12 @@ function generateMessageContent({ username, message, effect, self, actuallySendT
 			<span class="text-sm font-normal text-gray-500 dark:text-gray-400">${actuallySendToAnyone || !self ? getTime() : "Non delivré"}</span>
 		</div>
 		<div
-			class="flex flex-col leading-1.5 px-4 py-3 border-[#e8e8e8] dark:border-[#464646] border-[0.5px] ${effect == "rainbow" ? "rainbowBg" : ""} ${effect != "belgian" && effect != "rainbow" ? "bg-fcfcfc dark-bg-363636" : ""} ${self ? "rounded-l-xl rounded-br-xl" : "rounded-e-xl rounded-es-xl"}"
+			class="flex flex-col leading-1.5 px-4 py-3 border-[#e8e8e8] dark:border-[#464646] border-[0.5px] ${effect == "rainbow" ? "rainbowBg" : ""} ${effect != "belgian" && effect != "rainbow" ? "bg-fcfcfc dark-bg-363636" : ""} ${self ? "rounded-l-xl rounded-br-xl" : "rounded-e-xl rounded-es-xl"} ${effect == "invert" ? "invert" : ""} ${effect == "pulse" ? "a-pulse" : ""} ${effect == "bounce" ? "a-jump-bounce" : ""} ${effect == "rotate-down" ? "a-rotate-down-bounce" : ""} ${effect == "wobble" ? "a-wobble-top" : ""} ${effect == "vibrate" ? "a-vibrate-high" : ""}"
 			style="${effect == "belgian" ? "background: linear-gradient(to right, #000000 33.333%, #FDDA24 33.33% 66.666%, #EF3340 66.666%);" : ""}"
 		>
 			${effect == "marquee" ? "<marquee direction=\"up\">" : ""}
-				<p class="${effect == "discret" ? "text-xs opacity-15 font-light" : effect == "big" ? "text-2xl font-black" : "text-sm font-normal"} ${effect == "rotate" ? "rotate" : ""} ${effect == "ugly" ? "uglify" : ""} textColor select-text break-all">
-					${escapeHtml(message, true)}
+			<p class="${effect == "discret" ? "text-xs opacity-15 font-light" : effect == "big" ? "text-2xl font-black" : "text-sm font-normal"} ${effect == "rotate" ? "rotate" : ""} ${effect == "ugly" ? "uglify" : ""} textColor select-text break-all">
+			${escapeHtml(message, true)}
 				</p>
 			${effect == "marquee" ? "</marquee>" : ""}
 		</div>
