@@ -1,6 +1,7 @@
 var connectedIPs = []
 var username
 var jsConfetti
+var ownIp
 
 // Recevoir des messages du preload.js
 window.addEventListener("message", (event) => {
@@ -10,6 +11,9 @@ window.addEventListener("message", (event) => {
 
 	// Changer la liste des appareils connectés
 	else if(event.data.id == "connected") connectedIPs = event.data.data
+
+	// Enregistrer sa propre IP
+	else if(event.data.id == "ownIp") ownIp = event.data.data
 
 	// Envoyer un message avec effet via le menu contextuel
 	else if(event.data.id == "effect") sendMessage(event.data.data)
@@ -34,8 +38,13 @@ document.addEventListener("keydown", async (event) => {
 	if((event.ctrlKey || event.metaKey) && event.key == "Enter") sendMessage()
 
 	// Masquer la fenêtre avec échap
-	if(event.key == "Escape") electronIpc.send("hide")
+	if(event.key == "Escape") window.postMessage({ id: "hide" })
 })
+
+// Quand la page est chargé
+window.onload = async function () {
+	window.postMessage({ id: "getInfos" })
+}
 
 // Fonction pour rejoindre le chat
 async function joinChat(){
@@ -53,6 +62,9 @@ async function joinChat(){
 
 // Fonction pour envoyer un message
 async function sendMessage(effect){
+	// Si le bouton est déjà désactivé, on annule l'envoi
+	if(document.getElementById("sendButton").getAttribute("disabled")) return
+
 	// Vérifier qu'on a un pseudo
 	if(!username?.length || !username.trim().length) return
 
@@ -64,6 +76,19 @@ async function sendMessage(effect){
 	document.getElementById("sendButton")?.setAttribute("disabled", "disabled")
 	document.getElementById("message").value = ""
 	document.getElementById("message").focus()
+
+	// Si c'est pour ajouter une IP
+	if(message.startsWith("/addip ")){
+		var ip = message.split(" ")[1]
+		if(!ip?.length){
+			document.getElementById("sendButton").removeAttribute("disabled")
+			return alert("Vous devez spécifier une adresse IP.")
+		}
+		window.postMessage({ id: "addIp", data: ip })
+		window.postMessage({ id: "getInfos" })
+		alert("Adresse IP ajoutée avec succès.")
+		return document.getElementById("sendButton").removeAttribute("disabled")
+	}
 
 	// Chiffrer le message (256 bits)
 	var key = window.crypto.getRandomValues(new Uint8Array(32))
@@ -100,12 +125,12 @@ async function sendMessage(effect){
 	document.getElementById("sendButton").removeAttribute("disabled")
 
 	// Ajouter le message à la fenêtre
-	document.getElementById("messages")?.insertAdjacentHTML("beforeend", generateMessageContent({ username, message, effect, self: true, actuallySendToAnyone }))
+	document.getElementById("messages")?.insertAdjacentHTML("beforeend", generateMessageContent({ username, message, effect, self: true, actuallySendToAnyone, ipAddr: ownIp }))
 	document.getElementById("messages")?.scrollTo(0, document.getElementById("messages")?.scrollHeight)
 }
 
 // Fonction pour générer le contenu d'un message
-function generateMessageContent({ username, message, effect, self, actuallySendToAnyone }){
+function generateMessageContent({ username, message, effect, self, actuallySendToAnyone, ipAddr }){
 	// Si on veut afficher un effet de confettis
 	if(effect == "tada"){
 		if(!jsConfetti) jsConfetti = new JSConfetti()
@@ -119,7 +144,7 @@ function generateMessageContent({ username, message, effect, self, actuallySendT
 	return `<div class="flex items-start gap-2.5 mr-2 ${self ? "justify-end" : ""}">
 	<div class="flex flex-col gap-1">
 		<div class="flex items-center space-x-2 ${self ? "justify-end" : ""}">
-			<span class="text-sm font-semibold textColor break-all">${escapeHtml(username)}</span>
+			<span class="text-sm font-semibold textColor break-all select-text">${escapeHtml(username)}${ipAddr ? ` (${escapeHtml(ipAddr || "IP inconnue")})` : ""}</span>
 			<span class="text-sm font-normal text-gray-500 dark:text-gray-400">${actuallySendToAnyone || !self ? getTime() : "Non delivré"}</span>
 		</div>
 		<div

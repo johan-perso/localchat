@@ -12,6 +12,10 @@ var BrowserWindow
 if(process.platform == "win32") BrowserWindow = require("mica-electron").MicaBrowserWindow
 else BrowserWindow = require("electron").BrowserWindow
 
+// Variables
+var additionalIps = []
+var ownLocalIpCache
+
 // Menu contextuel
 const contextMenu = require("electron-context-menu")
 contextMenu({
@@ -214,17 +218,9 @@ async function main(){
 	}, 700)
 
 	// Quand l'app est affichée
-	window.on("show", async () => {
-		// Log et variable
+	window.on("show", () => {
 		console.log("Window showed.")
 		isShowed = true
-
-		// Scanner les IPs si ça fait plus de 5 secondes
-		if(Date.now() - lastIpCheck > 5000){
-			lastIpCheck = Date.now()
-			connectedIPs = await getNetworkIPs()
-			window.webContents.send("connected", connectedIPs)
-		}
 	})
 
 	// Ouvrir un serveur pour les autres appareils
@@ -261,11 +257,15 @@ async function main(){
 		if(typeof message != "string") return res.status(400).send("Message must be a string.")
 		if(!ids?.key || !ids?.iv) return res.status(400).send("No ids provided (or 1/2 is missing).")
 
+		// Obtenir l'IP de celui qui a envoyé le message
+		var ipAddr = req.ip || "IP inconnue"
+		ipAddr = ipAddr.replace(/[^0-9.]/g, "")
+
 		// Tenter de déchiffrer le message
 		var decryptedMessage = decryptText(message, ids.key, ids.iv)
 
 		// On envoie le message à la fenêtre
-		window.webContents.send("message", { message: decryptedMessage || "Impossible de déchiffrer le message, cela vient sûrement de la personne ayant envoyé ce message.", username, effect })
+		window.webContents.send("message", { message: decryptedMessage || "Impossible de déchiffrer le message, cela vient sûrement de la personne ayant envoyé ce message.", username, effect, ipAddr })
 		res.status(200).send("OK")
 
 		if(!isShowed){
@@ -287,6 +287,22 @@ async function main(){
 	ipcMain.on("hide", () => { // masquer la fenêtre
 		isShowed = false
 		window.hide()
+	})
+	ipcMain.on("addIp", (event, ip) => { // ajouter une IP
+		ip = ip.replace(/[^0-9.]/g, "")
+		console.log("Ajout d'une ip:", ip)
+		if(!additionalIps.includes(ip)) additionalIps.push(ip)
+	})
+	ipcMain.on("getInfos", async () => { // envoyer les infos sur demande
+		await getLocalIP()
+		window.webContents.send("ownIp", ownLocalIpCache)
+
+		// Scanner les IPs si ça fait plus de 5 secondes
+		if(Date.now() - lastIpCheck > 5000){
+			lastIpCheck = Date.now()
+			connectedIPs = await getNetworkIPs()
+		}
+		window.webContents.send("connected", connectedIPs)
 	})
 
 	// On recherche continuellement des appareils connectés
@@ -324,26 +340,34 @@ async function fetchWithTimeout(url, timeout, options = {}){
 // Fonction pour obtenir son IP local
 async function getLocalIP(){
 	var ip = networkInterfaces()["Wi-Fi"]?.filter(i => i?.family == "IPv4")[0] || Object.values(networkInterfaces()).flat().filter(({ family, internal }) => family === "IPv4" && !internal).map(({ address }) => address)[0] || await require("dns").promises.lookup(hostname())
-	return ip.address || ip || null
+	ownLocalIpCache = ip.address || ip || null
+	return ownLocalIpCache
 }
 
 // Fonction pour obtenir l'IP de tout les appareils connectés au réseau
 async function getNetworkIPs(){
 	// Obtenir l'IP local
-	var localIP = await getLocalIP()
-	if(!localIP || localIP.startsWith("127.")) return []
+	var localIp = await getLocalIP()
+	var localIPs = [localIp, ...additionalIps]
+	localIPs = localIPs.filter(i => i && !i.startsWith("127."))
 
 	// Faire une liste avec toutes les potentielles IP
+	console.log("Will check sub-IPs:", localIPs)
 	var potentialIPs = []
-	for(var i = 0; i < 256; i++) potentialIPs.push(localIP.replace(/\d+$/, i))
+	for(var ip of localIPs){
+		for(var i = 0; i < 256; i++) potentialIPs.push(ip.replace(/\d+$/, i))
+	}
 
-	// Tester si les IP sont valides
+	// Eviter d'avoir les trucs en double
+	potentialIPs = [...new Set(potentialIPs)]
+
+	// Tester si les IPs sont valides
 	var validIPs = []
 	var waitGetIps = new Promise((resolve, reject) => {
 		var checkedIPs = 0
 		potentialIPs.forEach(async (ip, i) => {
 			try {
-				var res = await fetchWithTimeout(`http://${ip}:9123/ping`, 1000).catch(() => { return { ok: false } })
+				var res = await fetchWithTimeout(`http://${ip}:9123/ping`, 5000).catch((err) => { return { ok: false } })
 				if(res.ok) validIPs.push(ip)
 				checkedIPs++
 			} catch(err){}
@@ -353,7 +377,10 @@ async function getNetworkIPs(){
 	await waitGetIps
 
 	// Enlever sa propre IP locale
-	validIPs = validIPs.filter(i => i != localIP)
+	validIPs = validIPs.filter(i => i != localIp)
+
+	// Enlever les IPs en double
+	validIPs = [...new Set(validIPs)]
 
 	// Retourner les IP valides
 	console.log(`${validIPs.length} valid IPs found:`, validIPs)
