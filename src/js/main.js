@@ -10,7 +10,12 @@ window.addEventListener("message", (event) => {
 	if(event.data.id == "focus") document.querySelector("[autofocus]")?.focus({ preventScroll: true })
 
 	// Changer la liste des appareils connectés
-	else if(event.data.id == "connected") connectedIPs = event.data.data
+	else if(event.data.id == "connected"){
+		connectedIPs = event.data.data
+
+		if(connectedIPs.length) document.getElementById("noRecipient").classList.add("hidden")
+		else document.getElementById("noRecipient").classList.remove("hidden")
+	}
 
 	// Enregistrer sa propre IP
 	else if(event.data.id == "ownIp") ownIp = event.data.data
@@ -29,17 +34,17 @@ window.addEventListener("message", (event) => {
 document.addEventListener("keydown", async (event) => {
 	// Empêcher les raccourcis pour fermer la page
 	if((event.ctrlKey || event.metaKey) && event.key == "w") event.preventDefault()
-	if((event.ctrlKey || event.metaKey) && event.key == "q") event.preventDefault()
+	else if((event.ctrlKey || event.metaKey) && event.key == "q") event.preventDefault()
 
 	// Si on fait Enter sur le champ de pseudo, on rejoint le chat
-	if(event.key == "Enter" && document.activeElement?.id == "askusername") joinChat()
+	else if(event.key == "Enter" && document.activeElement?.id == "askusername") joinChat()
 
 	// Si on appuie sur une certaine touche pendant qu'on est dans la zone de message
-	if(!event.shiftKey && event.key == "Enter" && document.activeElement?.id == "message"){ // Enter = envoyer le message au lieu de sauter une ligne
+	else if(!event.shiftKey && event.key == "Enter" && document.activeElement?.id == "message"){ // Enter = envoyer le message au lieu de sauter une ligne
 		event.preventDefault()
 		sendMessage()
 	}
-	if(document.activeElement?.id == "message" && event.shiftKey && event.key == "Enter"){ // Shift+Enter = sauter une ligne
+	else if(document.activeElement?.id == "message" && event.shiftKey && event.key == "Enter"){ // Shift+Enter = sauter une ligne
 		event.preventDefault()
 		var cursorPosition = document.getElementById("message").selectionStart
 		var textBefore = document.getElementById("message").value.substring(0, cursorPosition)
@@ -48,7 +53,17 @@ document.addEventListener("keydown", async (event) => {
 	}
 
 	// Masquer la fenêtre avec échap
-	if(event.key == "Escape") window.postMessage({ id: "hide" })
+	else if(event.key == "Escape") window.postMessage({ id: "hide" })
+
+	// Si on veut écrire quelque chose dans la zone de texte sans l'avoir focus
+	else if(!event.ctrlKey && !event.metaKey && !event.altKey && document.activeElement?.tagName != "TEXTAREA" && document.activeElement?.tagName != "INPUT"){
+		document.getElementById("message")?.focus()
+	}
+	else if((event.ctrlKey || event.metaKey) && event.key == "v" && document.activeElement?.tagName != "TEXTAREA" && document.activeElement?.tagName != "INPUT"){
+		event.preventDefault()
+		document.getElementById("message")?.focus()
+		document.execCommand("paste")
+	}
 })
 
 // Quand la page est chargé
