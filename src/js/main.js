@@ -23,6 +23,9 @@ window.addEventListener("message", (event) => {
 	// Envoyer un message avec effet via le menu contextuel
 	else if(event.data.id == "effect") sendMessage(event.data.data)
 
+	// Permettre de se renommer sans actualiser
+	else if(event.data.id == "rename") showRename()
+
 	// Afficher un message reçu
 	else if(event.data.id == "message"){
 		document.getElementById("messages")?.insertAdjacentHTML("beforeend", generateMessageContent({ ...event.data.data, self: false }))
@@ -80,9 +83,16 @@ async function joinChat(){
 	username = document.getElementById("askusername")?.value
 	if(!username?.length || !username.trim().length) username = randomUsernames[Math.floor(Math.random() * randomUsernames.length)]
 
-	// Supprimer le modal et rendre le conteneur principal visible
-	document.getElementById("askusername-modal")?.remove()
+	// Masquer le modal et rendre le conteneur principal visible
+	document.getElementById("askusername-modal")?.classList.add("hidden")
 	document.getElementById("mainContainer")?.classList.remove("opacity-30", "pointer-events-none")
+}
+
+// Fonction pour se renommer
+function showRename(){
+	document.getElementById("mainContainer")?.classList.add("opacity-30", "pointer-events-none")
+	document.getElementById("askusername-modal")?.classList.remove("hidden")
+	document.getElementById("askusername")?.focus()
 }
 
 // Fonction pour envoyer un message

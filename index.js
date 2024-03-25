@@ -28,6 +28,10 @@ contextMenu({
 
 	append: () => [
 		{
+			label: "Changer de nom",
+			click: () => window.webContents.send("rename")
+		},
+		{
 			label: "Envoyer avec effet",
 			submenu: [
 				{

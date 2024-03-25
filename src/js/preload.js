@@ -8,6 +8,7 @@ ipcRenderer.on("effect", (event, data) => { window.postMessage({ id: "effect", d
 ipcRenderer.on("message", (event, data) => { window.postMessage({ id: "message", data }) })
 ipcRenderer.on("connected", (event, data) => { window.postMessage({ id: "connected", data }) })
 ipcRenderer.on("ownIp", (event, data) => { window.postMessage({ id: "ownIp", data }) })
+ipcRenderer.on("rename", (event) => { window.postMessage({ id: "rename" }) })
 
 // envoyer du rendu (la page) au processus principale
 window.addEventListener("message", (event) => {
