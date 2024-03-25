@@ -318,7 +318,7 @@ async function main(){
 	ipcMain.on("addIp", (event, ip) => { // ajouter une IP
 		ip = ip.replace(/[^0-9.]/g, "")
 		console.log("Ajout d'une ip:", ip)
-		if(!additionalIps.includes(ip)) additionalIps.push(ip)
+		if(!additionalIps.includes(ip) && ip != ownLocalIpCache) additionalIps.push(ip)
 	})
 	ipcMain.on("getInfos", async () => { // envoyer les infos sur demande
 		await getLocalIP()
