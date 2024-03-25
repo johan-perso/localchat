@@ -31,11 +31,21 @@ document.addEventListener("keydown", async (event) => {
 	if((event.ctrlKey || event.metaKey) && event.key == "w") event.preventDefault()
 	if((event.ctrlKey || event.metaKey) && event.key == "q") event.preventDefault()
 
-	// Si on fait Enter en sélectionnant un certain élément
+	// Si on fait Enter sur le champ de pseudo, on rejoint le chat
 	if(event.key == "Enter" && document.activeElement?.id == "askusername") joinChat()
 
-	// Si on fait CTRL+Enter
-	if((event.ctrlKey || event.metaKey) && event.key == "Enter") sendMessage()
+	// Si on appuie sur une certaine touche pendant qu'on est dans la zone de message
+	if(!event.shiftKey && event.key == "Enter" && document.activeElement?.id == "message"){ // Enter = envoyer le message au lieu de sauter une ligne
+		event.preventDefault()
+		sendMessage()
+	}
+	if(document.activeElement?.id == "message" && event.shiftKey && event.key == "Enter"){ // Shift+Enter = sauter une ligne
+		event.preventDefault()
+		var cursorPosition = document.getElementById("message").selectionStart
+		var textBefore = document.getElementById("message").value.substring(0, cursorPosition)
+		var textAfter = document.getElementById("message").value.substring(cursorPosition)
+		document.getElementById("message").value = `${textBefore}\n${textAfter}`
+	}
 
 	// Masquer la fenêtre avec échap
 	if(event.key == "Escape") window.postMessage({ id: "hide" })
