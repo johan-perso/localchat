@@ -115,14 +115,13 @@ async function sendMessage(effect){
 	// Si c'est pour ajouter une IP
 	if(message.startsWith("/addip ")){
 		var ip = message.split(" ")[1]
+		document.getElementById("sendButton").removeAttribute("disabled")
 		if(!ip?.length){
-			document.getElementById("sendButton").removeAttribute("disabled")
 			return alert("Vous devez spécifier une adresse IP.")
 		}
 		window.postMessage({ id: "addIp", data: ip })
 		window.postMessage({ id: "getInfos" })
-		alert("Adresse IP ajoutée avec succès.")
-		return document.getElementById("sendButton").removeAttribute("disabled")
+		return alert("Adresse IP ajoutée avec succès.")
 	}
 
 	// Chiffrer le message (256 bits)
@@ -134,7 +133,7 @@ async function sendMessage(effect){
 	var sendMessagePromise = new Promise((resolve, reject) => {
 		if(connectedIPs.length) connectedIPs.forEach(async (ip, i) => {
 			try {
-				await fetch(`http://${ip}:9123/message`, {
+				await fetchWithTimeout(`http://${ip}:9123/message`, 8000, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
@@ -203,6 +202,17 @@ function escapeHtml(text, isTextMessage = false){
 	text = text?.replace(/&/g, "&amp;")?.replace(/</g, "&lt;")?.replace(/>/g, "&gt;")?.replace(/"/g, "&quot;")?.replace(/'/g, "&#039;").trim()
 	if(isTextMessage) text = text.replace(/\n/g, "<br>").replace(/(https?:\/\/[^\s]+)/g, "<a href=\"$1\" target=\"_blank\" class=\"text-blue-500 dark:text-blue-400\">$1</a>")
 	return text
+}
+
+// Fonction pour faire une requête fetch, avec un timeout
+async function fetchWithTimeout(url, timeout, options = {}){
+	const controller = new AbortController()
+	const id = setTimeout(() => controller.abort(), timeout)
+	const response = await fetch(url, {
+		...options, signal: controller.signal
+	})
+	clearTimeout(id)
+	return response
 }
 
 // Fonction pour obtenir l'heure actuelle "HH:MM"
