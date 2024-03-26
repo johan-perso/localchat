@@ -15,6 +15,7 @@ else BrowserWindow = require("electron").BrowserWindow
 // Variables
 var additionalIps = []
 var ownLocalIpCache
+var ownLocalIpCacheExpire = 0
 
 // Menu contextuel
 const contextMenu = require("electron-context-menu")
@@ -370,16 +371,19 @@ async function fetchWithTimeout(url, timeout, options = {}){
 
 // Fonction pour obtenir son IP local
 async function getLocalIP(){
+	if(ownLocalIpCache && ownLocalIpCacheExpire > Date.now()) return ownLocalIpCache
+
 	var ip = networkInterfaces()["Wi-Fi"]?.filter(i => i?.family == "IPv4")[0] || Object.values(networkInterfaces()).flat().filter(({ family, internal }) => family === "IPv4" && !internal).map(({ address }) => address)[0] || await require("dns").promises.lookup(hostname())
+
 	ownLocalIpCache = ip.address || ip || null
-	return ownLocalIpCache
+	ownLocalIpCacheExpire = Date.now() + (1000 * 60 * 5)
 }
 
 // Fonction pour obtenir l'IP de tout les appareils connectés au réseau
 async function getNetworkIPs(){
 	// Obtenir l'IP local
-	var localIp = await getLocalIP()
-	var localIPs = [localIp, ...additionalIps]
+	await getLocalIP()
+	var localIPs = [ownLocalIpCache, ...additionalIps]
 	localIPs = localIPs.filter(i => i && !i.startsWith("127."))
 
 	// Faire une liste avec toutes les potentielles IP
@@ -408,7 +412,7 @@ async function getNetworkIPs(){
 	await waitGetIps
 
 	// Enlever sa propre IP locale
-	validIPs = validIPs.filter(i => i != localIp)
+	validIPs = validIPs.filter(i => i != ownLocalIpCache)
 
 	// Enlever les IPs en double
 	validIPs = [...new Set(validIPs)]
