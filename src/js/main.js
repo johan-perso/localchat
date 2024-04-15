@@ -105,7 +105,8 @@ async function sendMessage(effect){
 
 	// Récupérer le message à envoyer
 	var message = document.getElementById("message")?.value
-	if(!message?.length) return console.log("No message provided.")
+	if(!message?.length) return console.log("No message provided (!length).")
+	if(isEmpty(message)) return console.log("No message provided (advanced verification).")
 
 	// Désactiver le bouton envoyer et vider le champ de texte
 	document.getElementById("sendButton")?.setAttribute("disabled", "disabled")
@@ -202,6 +203,12 @@ function escapeHtml(text, isTextMessage = false){
 	text = text?.replace(/&/g, "&amp;")?.replace(/</g, "&lt;")?.replace(/>/g, "&gt;")?.replace(/"/g, "&quot;")?.replace(/'/g, "&#039;").trim()
 	if(isTextMessage) text = text.replace(/\n/g, "<br>").replace(/(https?:\/\/[^\s]+)/g, "<a href=\"$1\" target=\"_blank\" class=\"text-blue-500 dark:text-blue-400\">$1</a>")
 	return text
+}
+
+// Fonction pour vérifier si un string est vide
+function isEmpty(str){
+	str = str.trim().replace(/\s/g, "")
+	return str.length == 0
 }
 
 // Fonction pour faire une requête fetch, avec un timeout

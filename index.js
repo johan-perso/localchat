@@ -296,6 +296,9 @@ async function main(){
 		// Tenter de déchiffrer le message
 		var decryptedMessage = decryptText(message, ids.key, ids.iv)
 
+		// Vérifier si le message contient quelque chose
+		if(isEmpty(decryptedMessage)) return res.status(400).send("Message (after decryption) is empty.")
+
 		// On envoie le message à la fenêtre
 		window.webContents.send("message", { message: decryptedMessage || "Impossible de déchiffrer le message, cela vient sûrement de la personne ayant envoyé ce message.", username, effect, ipAddr })
 		res.status(200).send("OK")
@@ -357,6 +360,12 @@ app.whenReady().then(async () => {
 		if(BrowserWindow.getAllWindows().length === 0) main()
 	})
 })
+
+// Fonction pour vérifier si un string est vide
+function isEmpty(str){
+	str = str.trim().replace(/\s/g, "")
+	return str.length == 0
+}
 
 // Fonction pour faire une requête fetch, avec un timeout
 async function fetchWithTimeout(url, timeout, options = {}){
