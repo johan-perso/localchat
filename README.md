@@ -9,13 +9,13 @@ Chaque utilisateur ouvre un serveur local sur son appareil, les autres utilisate
 
 ## Installation
 
-## Windows
+### Windows
 
 * Téléchargez le fichier `LocalChat-*-win32-x64.zip` dans la section [Releases](https://github.com/johan-perso/localchat/releases/latest) de ce dépôt.
 * Décompressez le fichier ZIP puis exécutez le fichier `LocalChat.exe` pour démarrer l'application.
 * Vous pouvez créer un raccourci vers `LocalChat.exe` pour lancer l'application plus facilement.
 
-## macOS
+### macOS
 
 * Cherchez et téléchargez le fichier `LocalChat-*-macos-*.dmg` (en fonction de votre architecture, Intel = x64 ; Sillicon = arm64) dans la section [Releases](https://github.com/johan-perso/localchat/releases/latest) de ce dépôt.
 * Ouvrez le fichier DMG puis déplacez l'application `LocalChat.app` dans le dossier Applications.
