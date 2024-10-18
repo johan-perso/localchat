@@ -129,6 +129,14 @@ async function sendMessage(effect){
 	var key = window.crypto.getRandomValues(new Uint8Array(32))
 	var iv = window.crypto.getRandomValues(new Uint8Array(16))
 
+	// Faire une copie non-immuable de la clé
+	var realKey = new Uint8Array(key)
+
+	// Ajouter des détails "hardcodés" dans la clé
+	realKey.set(new TextEncoder().encode(new Date().getFullYear().toString()), 28) // On rajoute l'année actuelle
+	var specialBytes = [72, 101, 99, 14, 45, 98, 76, 111, 114, 54, 1, 9, 50, 8]
+	realKey.set(specialBytes, 0) // On rajoute certains octets précis pré-déterminés
+
 	// Envoyer le message à tout le monde
 	var actuallySendToAnyone = false
 	var sendMessagePromise = new Promise((resolve, reject) => {
@@ -138,7 +146,7 @@ async function sendMessage(effect){
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
-						message: await encryptText(message, key, iv),
+						message: await encryptText(message, realKey, iv),
 						username, effect,
 						ids: {
 							key: btoa(String.fromCharCode(...key)),

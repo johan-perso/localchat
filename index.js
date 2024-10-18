@@ -436,7 +436,14 @@ function decryptText(encryptedText, key, iv) {
 	// Décoder les clés
 	key = Buffer.from(key, "base64")
 	iv = Buffer.from(iv, "base64")
-	console.log("Decoding with key:", key, "and iv:", iv)
+	console.log("Decoding message, iv:", iv)
+	console.log("Decoding message, original key:", key)
+
+	// Ajouter des détails dans la clé, qui dcp ne sont pas dans la requête
+	key.set(new TextEncoder().encode(new Date().getFullYear().toString()), 28)
+	key.set([72, 101, 99, 14, 45, 98, 76, 111, 114, 54, 1, 9, 50, 8], 0)
+	console.log("Decoding message, new key:", key)
+
 	// Déchiffrer le texte
 	try {
 		const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv)
