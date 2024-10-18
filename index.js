@@ -159,9 +159,10 @@ async function main(){
 		maximizable: false,
 		fullscreenable: false,
 		autoHideMenuBar: true,
-		hiddenInMissionControl: true
+		hiddenInMissionControl: true,
 	})
 	notifWindow.setIgnoreMouseEvents(true)
+	notifWindow.setFocusable(false)
 	notifWindow.loadFile(join(__dirname, "src/notif.html"))
 
 	// Icone tray pour macOS
@@ -242,6 +243,7 @@ async function main(){
 		if(ready){
 			console.log("Window lost focus, hiding...")
 			window.hide()
+			if(process.platform == "darwin") app.hide()
 			isShowed = false
 		}
 	})
@@ -322,6 +324,7 @@ async function main(){
 	ipcMain.on("hide", () => { // masquer la fenêtre
 		isShowed = false
 		window.hide()
+		if(process.platform == "darwin") app.hide()
 	})
 	ipcMain.on("addIp", (event, ip) => { // ajouter une IP
 		ip = ip.replace(/[^0-9.]/g, "")
