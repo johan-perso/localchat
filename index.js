@@ -165,27 +165,32 @@ async function main(){
 	notifWindow.setFocusable(false)
 	notifWindow.loadFile(join(__dirname, "src/notif.html"))
 
-	// Créer le tray et gérer son icôn selon l'OS
+	// Icone tray pour macOS
 	let trayIcon;
 	(process.platform === "darwin") ? trayIcon = "src/icons/DarwinTemplate.png" : trayIcon = "src/icons/transparent.png"
-	const tray = new Tray(join(__dirname, trayIcon))
-	var trayContextMenu
 
-	updateTray = (unreadCount = 0) => {
-		trayContextMenu = Menu.buildFromTemplate([
-			{ label: `${unreadCount} non lu${unreadCount > 1 ? "s" : ""}`, id: "unread-count", enabled: false },
-			{ type: "separator" },
-			{ label: "Afficher", click: () => showWindow() },
-			{ label: "Quitter", click: () => stopApp() },
-		])
-		tray.setContextMenu(trayContextMenu)
+	// On crée une Tray (icône dans la barre des tâches)
+	const tray = new Tray(join(__dirname, trayIcon))
+	var msgsUnreadCount = 0
+	var trayTemplate = [
+		{ label: "0 non lu", id: "unread-count", enabled: false },
+		{ type: "separator" },
+		{ label: "Afficher", click: () => showWindow() },
+		{ label: "Quitter", click: () => stopApp() },
+	]
+	var trayContextMenu = Menu.buildFromTemplate(trayTemplate)
+	if(process.platform == "linux") tray.setContextMenu(trayContextMenu)
+
+	updateTray = () => {
+		console.log("Updating tray with unread count:", msgsUnreadCount)
+		trayTemplate.find(i => i.id == "unread-count").label = `${msgsUnreadCount} non lu${msgsUnreadCount > 1 ? "s" : ""}`
+		trayContextMenu = Menu.buildFromTemplate(trayTemplate)
+		if(process.platform == "linux") tray.setContextMenu(trayContextMenu)
 	}
-	updateTray(0)
 
 	// Définir la fonction pour afficher la fenêtre
 	showWindow = () => {
 		console.log("Showing window...")
-		updateTray(0)
 
 		// On positionne
 		var position = tray.getBounds()
@@ -194,16 +199,21 @@ async function main(){
 
 		// On affiche
 		window.show()
-
 	}
 
 	// Afficher la fenêtre quand on clique sur l'icône
 	tray.on("click", () => {
+		msgsUnreadCount = 0
+		updateTray()
+
 		console.log("Tray clicked, showing window...")
 		showWindow()
 	})
 
 	tray.on("right-click", () => {
+		updateTray()
+
+		console.log("Right clicked on tray, showing context menu...")
 		tray.popUpContextMenu(trayContextMenu)
 	})
 
@@ -327,9 +337,8 @@ async function main(){
 			notifWindowShowTimeout = setTimeout(() => notifWindow.hide(), 3000)
 
 			// Modifier le nombre de messages non lus
-			var unreadCount = parseInt(trayContextMenu.getMenuItemById("unread-count").label.split(" ")[0]) + 1
-			updateTray(unreadCount)
-
+			msgsUnreadCount++
+			updateTray()
 		}
 	})
 
