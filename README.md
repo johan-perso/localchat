@@ -5,6 +5,8 @@ Une application pour discuter au sein d'un réseau local, de manière décentral
 > À la base c'était un projet pour profiter du réseau de mon lycée qui n'a pas d'accès à Internet, le projet ne sera sûrement pas mis à jour.  
 > Projet basé sur le code source d'[Agendapp](https://github.com/johan-perso/agendapp), une application d'organisation des devoirs et de prise de notes.
 
+![SCR-20241018-tkut](https://github.com/user-attachments/assets/8633e5a4-ec86-4c1d-bb60-b50c6ec8444b)
+
 
 ## Installation
 
