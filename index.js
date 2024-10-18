@@ -165,20 +165,27 @@ async function main(){
 	notifWindow.setFocusable(false)
 	notifWindow.loadFile(join(__dirname, "src/notif.html"))
 
-	// Icone tray pour macOS
+	// Créer le tray et gérer son icôn selon l'OS
 	let trayIcon;
 	(process.platform === "darwin") ? trayIcon = "src/icons/DarwinTemplate.png" : trayIcon = "src/icons/transparent.png"
-
-	// On crée une Tray (icône dans la barre des tâches)
 	const tray = new Tray(join(__dirname, trayIcon))
-	const trayContextMenu = Menu.buildFromTemplate([
-		{ label: "Quitter", click: () => stopApp() },
-	])
-	if(process.platform == "linux") tray.setContextMenu(trayContextMenu)
+	var trayContextMenu
+
+	updateTray = (unreadCount = 0) => {
+		trayContextMenu = Menu.buildFromTemplate([
+			{ label: `${unreadCount} non lu${unreadCount > 1 ? "s" : ""}`, id: "unread-count", enabled: false },
+			{ type: "separator" },
+			{ label: "Afficher", click: () => showWindow() },
+			{ label: "Quitter", click: () => stopApp() },
+		])
+		tray.setContextMenu(trayContextMenu)
+	}
+	updateTray(0)
 
 	// Définir la fonction pour afficher la fenêtre
 	showWindow = () => {
 		console.log("Showing window...")
+		updateTray(0)
 
 		// On positionne
 		var position = tray.getBounds()
@@ -187,6 +194,7 @@ async function main(){
 
 		// On affiche
 		window.show()
+
 	}
 
 	// Afficher la fenêtre quand on clique sur l'icône
@@ -317,6 +325,11 @@ async function main(){
 			notifWindow.show()
 			isShowingNotif = true
 			notifWindowShowTimeout = setTimeout(() => notifWindow.hide(), 3000)
+
+			// Modifier le nombre de messages non lus
+			var unreadCount = parseInt(trayContextMenu.getMenuItemById("unread-count").label.split(" ")[0]) + 1
+			updateTray(unreadCount)
+
 		}
 	})
 
@@ -443,9 +456,13 @@ function decryptText(encryptedText, key, iv) {
 	console.log("Decoding message, original key:", key)
 
 	// Ajouter des détails dans la clé, qui dcp ne sont pas dans la requête
-	key.set(new TextEncoder().encode(new Date().getFullYear().toString()), 28)
-	key.set([72, 101, 99, 14, 45, 98, 76, 111, 114, 54, 1, 9, 50, 8], 0)
-	console.log("Decoding message, new key:", key)
+	try {
+		key.set(new TextEncoder().encode(new Date().getFullYear().toString()), 28)
+		key.set([72, 101, 99, 14, 45, 98, 76, 111, 114, 54, 1, 9, 50, 8], 0)
+		console.log("Decoding message, new key:", key)
+	} catch(err){
+		console.error(err)
+	}
 
 	// Déchiffrer le texte
 	try {
