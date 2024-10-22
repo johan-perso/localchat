@@ -139,6 +139,7 @@ async function sendMessage(effect){
 
 	// Envoyer le message à tout le monde
 	var actuallySendToAnyone = false
+	var sendFailsCount = 0
 	var sendMessagePromise = new Promise((resolve, reject) => {
 		if(connectedIPs.length) connectedIPs.forEach(async (ip, i) => {
 			try {
@@ -153,8 +154,9 @@ async function sendMessage(effect){
 							iv: btoa(String.fromCharCode(...iv))
 						}
 					})
-				})
-			} catch(err){}
+				}).catch(err => { sendFailsCount++ })
+			} catch(err){ sendFailsCount++ }
+
 			if(i == connectedIPs.length - 1){
 				actuallySendToAnyone = true
 				resolve()
@@ -168,7 +170,7 @@ async function sendMessage(effect){
 	document.getElementById("sendButton").removeAttribute("disabled")
 
 	// Ajouter le message à la fenêtre
-	document.getElementById("messages")?.insertAdjacentHTML("beforeend", generateMessageContent({ username, message, effect, self: true, actuallySendToAnyone, ipAddr: ownIp }))
+	document.getElementById("messages")?.insertAdjacentHTML("beforeend", generateMessageContent({ username, message, effect, self: true, actuallySendToAnyone: sendFailsCount || connectedIPs.length || actuallySendToAnyone, ipAddr: ownIp }))
 	document.getElementById("messages")?.scrollTo(0, document.getElementById("messages")?.scrollHeight)
 }
 
