@@ -195,7 +195,7 @@ function generateMessageContent({ username, message, effect, self, actuallySendT
 			style="${effect == "belgian" ? "background: linear-gradient(to right, #000000 33.333%, #FDDA24 33.33% 66.666%, #EF3340 66.666%);" : ""}"
 		>
 			${effect == "marquee" ? "<marquee direction=\"up\">" : ""}
-			<p class="${effect == "discret" ? "text-xs opacity-15 font-light" : effect == "big" ? "text-2xl font-black" : "text-sm font-normal"} ${effect == "rotate" ? "rotate" : ""} ${effect == "ugly" ? "uglify" : ""} textColor select-text break-all">
+			<p class="${effect == "discret" ? "text-xs opacity-15 font-light" : effect == "big" ? "text-2xl font-black" : effect == "flip" ? "flip" : "text-sm font-normal"} ${effect == "rotate" ? "rotate" : ""} ${effect == "ugly" ? "uglify" : ""} textColor select-text break-all">
 			${escapeHtml(message, true)}
 				</p>
 			${effect == "marquee" ? "</marquee>" : ""}

@@ -20,6 +20,15 @@
 	padding: 4px;
 }
 
+/* Inverser quelque chose */
+.flip {
+	-moz-transform: scaleX(-1);
+	-o-transform: scaleX(-1);
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+	filter: FlipH;
+}
+
 /* Animation d'arrière plan multicolorée */
 .rainbowBg {
 	background: linear-gradient(238deg, #fd8800, #9700fd, #003dfd, #05c7e6, #4bd58d);

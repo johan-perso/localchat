@@ -929,6 +929,13 @@ video {
   padding: 4px;
 }
 
+/* Inverser quelque chose */
+
+.flip {
+  transform: scaleX(-1);
+  filter: FlipH;
+}
+
 /* Animation d'arrière plan multicolorée */
 
 .rainbowBg {

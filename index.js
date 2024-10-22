@@ -94,6 +94,10 @@ contextMenu({
 					label: "Discret",
 					click: () => window.webContents.send("effect", "discret")
 				},
+				{
+					label: "Inversé",
+					click: () => window.webContents.send("effect", "flip")
+				},
 			]
 		}
 	]
