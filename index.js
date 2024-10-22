@@ -1,3 +1,6 @@
+console.log("Hello world!")
+var perfNow = performance.now()
+
 // Importer des librairies
 const { app, ipcMain, Menu, Tray, shell, screen } = require("electron")
 const { platform, hostname, networkInterfaces } = require("os")
@@ -6,6 +9,7 @@ const positioner = require("electron-traywindow-positioner")
 const { join } = require("path")
 const express = require("express")
 const crypto = require("crypto")
+const findArpDevices = require("local-devices")
 
 // Fenêtre du navigateur
 var BrowserWindow
@@ -16,6 +20,8 @@ else BrowserWindow = require("electron").BrowserWindow
 var additionalIps = []
 var ownLocalIpCache
 var ownLocalIpCacheExpire = 0
+var arpDevicesCache
+var arpDevicesCacheExpire = 0
 
 // Menu contextuel
 const contextMenu = require("electron-context-menu")
@@ -139,6 +145,8 @@ function stopApp(){
 
 // Fonction pour crée une nouvelle fenêtre
 async function main(){
+	console.log(`Main function called after ${Math.round(performance.now() - perfNow)}ms`)
+
 	// Définir la taille de la fenêtre de notif en fonction de la taille de l'écran (le résultat est d'~ 16x16)
 	var { width } = screen.getPrimaryDisplay().workAreaSize
 	console.log("Screen size:", width)
@@ -294,6 +302,7 @@ async function main(){
 
 	// Route pour que les autres appareils puissent ping
 	appExpress.get("/ping", (req, res) => {
+		console.log("Someone pinged us.")
 		res.status(200).send("OK")
 	})
 
@@ -301,6 +310,8 @@ async function main(){
 	var notifWindowShowTimeout
 	var isShowingNotif = false
 	appExpress.post("/message", async (req, res) => {
+		console.log("[POST /message] Received a message.")
+
 		// On récupère les infos
 		var message = req.body?.message
 		var username = req.body?.username
@@ -308,6 +319,7 @@ async function main(){
 		var effect = req.body?.effect || null
 
 		// Vérifier les infos
+		console.log(`[POST /message] Infos: ${JSON.stringify({ message, username, ids, effect })}`)
 		if(!username || !username.trim().length) return res.status(400).send("No username provided.")
 		if(!message) return res.status(400).send("No message provided.")
 		if(typeof message != "string") return res.status(400).send("Message must be a string.")
@@ -316,18 +328,28 @@ async function main(){
 		// Obtenir l'IP de celui qui a envoyé le message
 		var ipAddr = req.ip || "IP inconnue"
 		ipAddr = ipAddr.replace(/[^0-9.]/g, "")
+		if(ipAddr && ipAddr != "IP inconnue") additionalIps.push(ipAddr)
+		if(ipAddr.startsWith("::ffff:")) ipAddr = ipAddr.replace("::ffff:", "") // plus propre dans l'interface
+		console.log(`[POST /message] Incoming message is from ${username} with IP address ${ipAddr}`)
 
 		// Tenter de déchiffrer le message
+		console.log("[POST /message] Decrypting message...")
 		var decryptedMessage = decryptText(message, ids.key, ids.iv)
+		console.log("[POST /message] Decrypted message:", decryptedMessage)
 
 		// Vérifier si le message contient quelque chose
-		if(isEmpty(decryptedMessage)) return res.status(400).send("Message (after decryption) is empty.")
+		if(isEmpty(decryptedMessage)){
+			console.error("[POST /message] Message (after decryption) is empty.")
+			return res.status(400).send("Message (after decryption) is empty.")
+		}
 
 		// On envoie le message à la fenêtre
 		window.webContents.send("message", { message: decryptedMessage || "Impossible de déchiffrer le message, cela vient sûrement de la personne ayant envoyé ce message.", username, effect, ipAddr })
 		res.status(200).send("OK")
 
 		if(!isShowed){
+			console.log("[POST /message] Main chat window isn't showed, we will display an indicator.")
+
 			// Masquer le précédent indicateur de notif
 			if(notifWindowShowTimeout) clearTimeout(notifWindowShowTimeout)
 			if(isShowingNotif){
@@ -419,27 +441,49 @@ async function getLocalIP(){
 
 // Fonction pour obtenir l'IP de tout les appareils connectés au réseau
 async function getNetworkIPs(){
+	// Obtenir les appareils sur le réseau avec ARP
+	var arpDevices = []
+	if(arpDevicesCache && arpDevicesCacheExpire > Date.now()){
+		console.log("[getNetworkIps] ARP was still in cache.")
+		arpDevices = arpDevicesCache
+	} else try {
+		console.log("[getNetworkIps] Getting devices through ARP...")
+		var _arpDevices = await findArpDevices({ skipNameResolution: true }).catch(() => [])
+		if(_arpDevices?.length){
+			arpDevices = _arpDevices.map(i => i.ip)
+			arpDevicesCache = arpDevices
+			arpDevicesCacheExpire = Date.now() + (1000 * 60 * 3) // 3 minutes
+		}
+	} catch(err){
+		console.warn("[getNetworkIps] ARP returned an error:")
+		console.warn(err)
+	}
+	console.log(`[getNetworkIps] ${arpDevices.length} devices found through ARP`)
+
 	// Obtenir l'IP local
 	await getLocalIP()
-	var localIPs = [ownLocalIpCache, ...additionalIps]
+	var localIPs = [ownLocalIpCache, ...arpDevices]
 	localIPs = localIPs.filter(i => i && !i.startsWith("127."))
 
 	// Faire une liste avec toutes les potentielles IP
-	console.log("Will check sub-IPs:", localIPs)
 	var potentialIPs = []
 	for(var ip of localIPs){
 		for(var i = 0; i < 256; i++) potentialIPs.push(ip.replace(/\d+$/, i))
 	}
+	additionalIps.forEach(ip => { potentialIPs.push(ip) })
 
 	// Eviter d'avoir les trucs en double
 	potentialIPs = [...new Set(potentialIPs)]
+	potentialIPs = potentialIPs.filter(i => i != ownLocalIpCache)
 
 	// Tester si les IPs sont valides
 	var validIPs = []
 	var waitGetIps = new Promise((resolve, reject) => {
 		var checkedIPs = 0
+		console.log(`[getNetworkIps] Checking ${potentialIPs.length} potential IPs...`)
 		potentialIPs.forEach(async (ip, i) => {
 			try {
+				console.log(`[getNetworkIps] Checking IP ${i + 1}/${potentialIPs.length}:`, ip)
 				var res = await fetchWithTimeout(`http://${ip}:9123/ping`, 5000).catch((err) => { return { ok: false } })
 				if(res.ok) validIPs.push(ip)
 				checkedIPs++
@@ -448,15 +492,14 @@ async function getNetworkIPs(){
 		})
 	})
 	await waitGetIps
+	console.log(`[getNetworkIps] Potentials IPs check got ${validIPs.length} valid IPs. We will filter those.`)
 
-	// Enlever sa propre IP locale
-	validIPs = validIPs.filter(i => i != ownLocalIpCache)
-
-	// Enlever les IPs en double
-	validIPs = [...new Set(validIPs)]
+	// Filtrer les IPs en trop
+	validIPs = validIPs.filter(i => i != ownLocalIpCache) // Sa propre IP locale
+	validIPs = [...new Set(validIPs)] // IPs en double
 
 	// Retourner les IP valides
-	console.log(`${validIPs.length} valid IPs found:`, validIPs)
+	console.log(`[getNetworkIps] ${validIPs.length} valid IPs found:`, validIPs)
 	return validIPs
 }
 
@@ -465,14 +508,14 @@ function decryptText(encryptedText, key, iv) {
 	// Décoder les clés
 	key = Buffer.from(key, "base64")
 	iv = Buffer.from(iv, "base64")
-	console.log("Decoding message, iv:", iv)
-	console.log("Decoding message, original key:", key)
+	console.log("[decryptText] Decoding message with iv:", iv)
+	console.log("[decryptText] Original key is:", key)
 
 	// Ajouter des détails dans la clé, qui dcp ne sont pas dans la requête
 	try {
 		key.set(new TextEncoder().encode(new Date().getFullYear().toString()), 28)
 		key.set([72, 101, 99, 14, 45, 98, 76, 111, 114, 54, 1, 9, 50, 8], 0)
-		console.log("Decoding message, new key:", key)
+		console.log("[decryptText] Key got updated to:", key)
 	} catch(err){
 		console.error(err)
 	}
@@ -484,6 +527,7 @@ function decryptText(encryptedText, key, iv) {
 		decrypted = Buffer.concat([decrypted, decipher.final()])
 		return decrypted.toString()
 	} catch(err) {
+		console.error("[decryptText] Error while decrypting message:", err)
 		console.error(err)
 		return `Impossible de déchiffrer le message, cela vient sûrement de la personne ayant envoyé ce message.\nErreur: ${err.message || err}`
 	}
