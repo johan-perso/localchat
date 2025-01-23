@@ -72,6 +72,8 @@ document.addEventListener("keydown", async (event) => {
 // Quand la page est chargé
 window.onload = async function () {
 	window.postMessage({ id: "getInfos" })
+
+	if(navigator.userAgent.includes("Mac OS X")) document.getElementById("message").setAttribute("placeholder", "Utiliser Ctrl+R pour forcer l'actualisation. Entrer &quot;/addip <ip>&quot; pour ajouter une adresse manuellement.")
 }
 
 // Fonction pour rejoindre le chat
