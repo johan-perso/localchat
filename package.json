@@ -7,11 +7,11 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "electron .",
-		"build_tailwindcss": "npx tailwindcss -i ./src/preTailwind.css -o ./src/style.css",
-		"watch_tailwindcss": "npx tailwindcss -i ./src/preTailwind.css -o ./src/style.css --watch",
-		"build-exe-x64": "electron-packager . --platform=win32 --arch=x64 --icon=src/icons/icon.ico --out=release-builds --overwrite",
-		"build-app-x64": "electron-packager . --platform=darwin --arch=x64 --icon=src/icons/icon.icns --out=release-builds --overwrite",
-		"build-app-arm64": "electron-packager . --platform=darwin --arch=arm64 --icon=src/icons/icon.icns --out=release-builds --overwrite",
+		"build_tailwindcss": "tailwindcss -i ./src/preTailwind.css -o ./src/style.css",
+		"watch_tailwindcss": "tailwindcss -i ./src/preTailwind.css -o ./src/style.css --watch",
+		"build-exe-x64": "electron-packager ./release-builds/minified-temp --platform=win32 --arch=x64 --icon=src/icons/icon.ico --out=release-builds --overwrite --asar",
+		"build-app-x64": "electron-packager ./release-builds/minified-temp --platform=darwin --arch=x64 --icon=src/icons/icon.icns --out=release-builds --overwrite --asar",
+		"build-app-arm64": "electron-packager ./release-builds/minified-temp --platform=darwin --arch=arm64 --icon=src/icons/icon.icns --out=release-builds --overwrite --asar",
 		"build": "node build.js"
 	},
 	"author": "Johan Stickman",
@@ -21,9 +21,13 @@
 		"electron": "^20.0.0",
 		"electron-packager": "^17.1.2",
 		"eslint": "^8.48.0",
-		"tailwindcss": "^3.3.1"
+		"html-minifier": "^4.0.0",
+		"sqwish": "^0.2.2",
+		"tailwindcss": "^3.3.1",
+		"terser": "^5.37.0"
 	},
 	"dependencies": {
+		"@jridgewell/gen-mapping": "^0.3.4",
 		"body-parser": "^1.20.2",
 		"electron-context-menu": "^3.6.1",
 		"electron-traywindow-positioner": "^1.2.0",
