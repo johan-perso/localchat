@@ -50,5 +50,5 @@ En conclusion, les messages peuvent être lus par des inconnus sur le réseau, m
 
 ## Licence
 
-MIT © [Johan](https://johanstick.fr).  
+MIT © [Johan](https://johanstick.fr). [Soutenez ce projet](https://johanstick.fr/#donate) si vous souhaitez m'aider 💙  
 Icône faite par [Icones8](https://icones8.fr/icon/D6fq9I7xyv5X/chat-message).
